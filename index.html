@@ -1,156 +1,631 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Foodify - Food Delivery Clone</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Foodie — Food Delivery Demo</title>
+
+  <!-- ===========================
+       STYLES
+       =========================== -->
   <style>
-    *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
-    body{background:#fafafa;color:#333}
-    header{position:fixed;top:0;left:0;width:100%;background:#ff5722;color:#fff;padding:1rem;display:flex;justify-content:space-between;align-items:center;z-index:1000}
-    header h1{font-size:1.5rem;cursor:pointer}
-    header nav a{margin:0 1rem;color:#fff;text-decoration:none;font-weight:bold}
-    header nav a:hover{opacity:0.8}
-    .content{padding-top:80px;max-width:1200px;margin:auto}
-    .hero{background:url('https://source.unsplash.com/1200x400/?food,restaurant') center/cover no-repeat;height:300px;display:flex;align-items:center;justify-content:center;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,0.6)}
-    .hero h2{font-size:2.5rem;background:rgba(0,0,0,0.5);padding:10px 20px;border-radius:10px}
-    .search-bar{margin:20px auto;display:flex;justify-content:center}
-    .search-bar input{width:60%;padding:10px;border:2px solid #ff5722;border-radius:5px;}
-    .restaurants{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px;margin:20px}
-    .restaurant{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);cursor:pointer;transition:transform 0.2s}
-    .restaurant:hover{transform:scale(1.02)}
-    .restaurant img{width:100%;height:160px;object-fit:cover}
-    .restaurant .info{padding:10px}
-    .restaurant .info h3{margin-bottom:5px}
-    .cart, .profile, .login-page{position:fixed;top:0;right:-100%;width:300px;height:100%;background:#fff;box-shadow:-2px 0 8px rgba(0,0,0,0.2);transition:0.3s;padding:20px;overflow-y:auto;z-index:2000}
-    .cart.active,.profile.active,.login-page.active{right:0}
-    .cart h2,.profile h2,.login-page h2{margin-bottom:15px}
-    .cart-item{display:flex;justify-content:space-between;margin:10px 0}
-    .btn{display:inline-block;padding:8px 12px;margin-top:10px;background:#ff5722;color:#fff;text-decoration:none;border-radius:5px;cursor:pointer}
-    .btn:hover{opacity:0.9}
-    footer{background:#222;color:#fff;text-align:center;padding:20px;margin-top:40px}
-    .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:3000}
-    .modal.active{display:flex}
-    .modal-content{background:#fff;padding:20px;border-radius:10px;width:90%;max-width:600px;max-height:80vh;overflow-y:auto}
-    .menu-item{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee}
-    .menu-item:last-child{border-bottom:none}
+    :root{
+      --primary:#ff4d4d;
+      --accent:#ff7a7a;
+      --muted:#7a7a7a;
+      --card:#ffffff;
+      --bg:#f6f7fb;
+      --glass: rgba(255,255,255,0.75);
+      --radius:14px;
+      --shadow: 0 8px 20px rgba(22,22,55,0.08);
+      --glass-shadow: 0 6px 18px rgba(22,22,55,0.06);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,#f6f7fb 0%, #eef2f8 100%);
+      color:#111827;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* Top nav */
+    header.topbar{
+      position:sticky; top:0; z-index:60;
+      backdrop-filter: blur(6px);
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; padding:12px 20px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.6), rgba(255,255,255,0.3));
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+    .brand { display:flex; align-items:center; gap:12px; cursor:pointer; }
+    .logo {
+      width:48px; height:48px; border-radius:10px; display:grid; place-items:center;
+      background: linear-gradient(135deg,var(--primary),var(--accent));
+      color:#fff; font-weight:700; box-shadow: var(--shadow);
+    }
+    .brand h1{ margin:0; font-size:18px; letter-spacing:0.2px; }
+    nav.actions { display:flex; gap:8px; align-items:center; }
+
+    /* Navbar buttons */
+    .nav-btn{
+      border: none; background:transparent; padding:8px 12px; border-radius:10px;
+      cursor:pointer; font-weight:600; color:#111827; transition:all .18s ease;
+    }
+    .nav-btn:hover { transform:translateY(-3px); background:rgba(0,0,0,0.03); }
+
+    /* Search */
+    .searchbar {
+      display:flex; gap:8px; align-items:center;
+      background:var(--card); padding:8px; border-radius:12px; box-shadow: var(--glass-shadow);
+      border:1px solid rgba(0,0,0,0.04);
+    }
+    .searchbar input{
+      border:0; outline:0; font-size:14px; padding:8px 6px; width:320px;
+      background:transparent;
+    }
+    .searchbar .filter{
+      padding:6px 8px; border-radius:8px; cursor:pointer; font-size:13px;
+      border:1px solid rgba(0,0,0,0.04);
+    }
+
+    /* Layout */
+    .layout{
+      display:grid; grid-template-columns: 1fr 340px; gap:20px;
+      padding:22px; max-width:1200px; margin:18px auto;
+    }
+
+    /* Left column (catalog) */
+    .catalog{
+      display:flex; flex-direction:column; gap:18px;
+    }
+    .section-title{ font-size:18px; margin:0 8px; color:#111827; font-weight:700; }
+
+    /* restaurants / product grid */
+    .grid{
+      display:grid; grid-template-columns: repeat(auto-fill,minmax(240px,1fr));
+      gap:18px;
+    }
+
+    .card {
+      background:var(--card); border-radius:var(--radius); overflow:hidden;
+      box-shadow: var(--shadow); transition: transform .18s ease, box-shadow .18s ease;
+      display:flex; flex-direction:column;
+    }
+    .card:hover{ transform: translateY(-8px); box-shadow: 0 18px 40px rgba(22,22,55,0.12); }
+
+    .card .media{
+      height:150px; background-size:cover; background-position:center;
+    }
+    .card .body{
+      padding:12px 14px; display:flex; gap:12px; flex-direction:column; flex:1;
+    }
+    .card h3 { margin:0; font-size:16px; }
+    .card p { margin:0; font-size:13px; color:var(--muted); }
+
+    .price-row{
+      display:flex; justify-content:space-between; align-items:center; gap:8px;
+      margin-top:8px;
+    }
+    .price { font-weight:700; color:var(--primary); }
+    .add-btn{
+      border:0; padding:8px 10px; border-radius:10px; cursor:pointer;
+      background: linear-gradient(90deg,var(--primary),var(--accent)); color:#fff; font-weight:700;
+      transition: transform .12s ease;
+    }
+    .add-btn:active{ transform: scale(.98); }
+
+    /* right column (cart & profile) */
+    aside.panel {
+      position:sticky; top:84px;
+      display:flex; flex-direction:column; gap:18px;
+    }
+    .panel .widget { background:var(--card); padding:14px; border-radius:12px; box-shadow:var(--glass-shadow); }
+    .cart-list{ display:flex; flex-direction:column; gap:8px; max-height:420px; overflow:auto; padding-right:6px; }
+    .cart-item{
+      display:flex; gap:10px; align-items:center; background: linear-gradient(180deg,#fff,#fbfbfb);
+      border-radius:10px; padding:8px;
+    }
+    .cart-item img{ width:56px; height:56px; border-radius:8px; object-fit:cover; }
+    .qty-btn { padding:6px 8px; border-radius:8px; border:1px solid rgba(0,0,0,0.06); background:transparent; cursor:pointer; }
+
+    .total-row{ display:flex; justify-content:space-between; align-items:center; margin-top:8px; font-weight:700; font-size:18px; }
+
+    /* profile */
+    .profile{
+      display:flex; gap:14px; align-items:center;
+    }
+    .profile img{ width:56px; height:56px; border-radius:999px; object-fit:cover; }
+    .profile .meta { display:flex; flex-direction:column; gap:4px; }
+    .small { font-size:13px; color:var(--muted); }
+
+    /* login / google button */
+    #g_id_onload, #g_id_signin { display:inline-block; }
+
+    /* footer */
+    footer{ text-align:center; color:var(--muted); font-size:13px; padding:18px; }
+
+    /* responsive */
+    @media (max-width:980px){
+      .layout{ grid-template-columns: 1fr; padding:14px; }
+      aside.panel{ position:relative; top:auto; }
+      .searchbar input{ width:140px; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <h1 onclick="showHome()">Foodify</h1>
-    <nav>
-      <a href="#" onclick="openCart()">Cart</a>
-      <a href="#" onclick="openProfile()">Profile</a>
-      <a href="#" onclick="openLogin()">Login</a>
-    </nav>
+
+  <!-- ===========================
+       HEADER / NAV
+       =========================== -->
+  <header class="topbar">
+    <div class="brand" onclick="goHome()">
+      <div class="logo">FD</div>
+      <div>
+        <h1>Foodie</h1>
+        <div style="font-size:12px;color:var(--muted)">Delicious delivered — demo</div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="searchbar" role="search" aria-label="Search foods">
+        <input id="searchInput" type="search" placeholder="Search dishes or restaurants..." oninput="renderProducts()" />
+        <select id="categoryFilter" class="filter" onchange="renderProducts()">
+          <option value="all">All categories</option>
+          <option value="veg">Veg</option>
+          <option value="nonveg">Non-Veg</option>
+          <option value="dessert">Dessert</option>
+        </select>
+      </div>
+
+      <nav class="actions" id="signedOutActions">
+        <!-- Google sign in will render here -->
+        <div id="gSignInWrapper"></div>
+      </nav>
+
+      <nav class="actions" id="signedInActions" style="display:none">
+        <button class="nav-btn" onclick="goTo('#cartSection')">Cart (<span id="cartCount">0</span>)</button>
+        <button class="nav-btn" onclick="goTo('#profileSection')">Profile</button>
+        <div id="profileMini" style="display:flex; align-items:center; gap:10px;"></div>
+        <button class="nav-btn" onclick="signOut()">Sign out</button>
+      </nav>
+    </div>
   </header>
-  <div class="content">
-    <section class="hero">
-      <h2>Delicious meals, delivered fast 🍴</h2>
+
+  <!-- ===========================
+       MAIN LAYOUT
+       =========================== -->
+  <main class="layout" role="main">
+
+    <!-- LEFT: product catalog -->
+    <section class="catalog" aria-labelledby="catalogTitle">
+      <h2 id="catalogTitle" class="section-title">Popular Dishes</h2>
+
+      <div id="productGrid" class="grid" aria-live="polite">
+        <!-- populated by JS -->
+      </div>
+
+      <h2 class="section-title">Recommended For You</h2>
+      <div id="recommendedGrid" class="grid">
+        <!-- populated by JS -->
+      </div>
     </section>
-    <div class="search-bar">
-      <input type="text" id="search" placeholder="Search restaurants or cuisines..." onkeyup="searchRestaurants()">
-    </div>
-    <section class="restaurants" id="restaurant-list"></section>
-  </div>
-  <div class="cart" id="cart-panel">
-    <h2>Your Cart</h2>
-    <div id="cart-items"></div>
-    <button class="btn" onclick="checkout()">Checkout</button>
-  </div>
-  <div class="profile" id="profile-panel">
-    <h2>Your Profile</h2>
-    <label>Name: <input type="text" id="profile-name"></label><br><br>
-    <label>City: <input type="text" id="profile-city"></label><br><br>
-    <button class="btn" onclick="saveProfile()">Save</button>
-  </div>
-  <div class="login-page" id="login-panel">
-    <h2>Login</h2>
-    <input type="text" id="login-username" placeholder="Username"><br><br>
-    <input type="password" id="login-password" placeholder="Password"><br><br>
-    <button class="btn" onclick="login()">Login</button>
-  </div>
-  <div class="modal" id="restaurant-modal">
-    <div class="modal-content">
-      <h2 id="modal-title"></h2>
-      <div id="menu-list"></div>
-      <button class="btn" onclick="closeModal()">Close</button>
-    </div>
-  </div>
+
+    <!-- RIGHT: Cart & Profile -->
+    <aside class="panel" aria-label="Cart and profile panel">
+      <!-- Profile widget -->
+      <div class="widget" id="profileSection">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div style="display:flex;gap:12px;align-items:center;">
+            <img id="pfPhoto" src="https://source.unsplash.com/80x80/?person" alt="profile photo" />
+            <div>
+              <div id="pfName" style="font-weight:700">Guest</div>
+              <div id="pfEmail" class="small">Not signed in</div>
+            </div>
+          </div>
+          <div id="authButtons">
+            <!-- Sign-in button appears in header; this keeps placeholder for UX -->
+          </div>
+        </div>
+
+        <hr style="margin:12px 0; border:0; border-top:1px solid rgba(0,0,0,0.04)">
+
+        <div class="small">Delivery address</div>
+        <input id="addressInput" placeholder="Enter delivery address" style="width:100%; padding:8px; margin-top:8px; border-radius:8px; border:1px solid rgba(0,0,0,0.04);" />
+        <div style="margin-top:10px; display:flex; gap:8px;">
+          <button class="add-btn" onclick="saveAddress()">Save Address</button>
+          <button class="add-btn" onclick="quickFillAddress()">Quick fill</button>
+        </div>
+      </div>
+
+      <!-- Cart widget -->
+      <div class="widget" id="cartSection">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-weight:700">Your Cart</div>
+          <div class="small" id="cartSummaryText">0 items</div>
+        </div>
+        <div class="cart-list" id="cartList" role="region" aria-live="polite">
+          <!-- cart items -->
+        </div>
+
+        <div class="total-row">
+          <div>Total</div>
+          <div id="cartTotal">₹0</div>
+        </div>
+
+        <div style="display:flex; gap:8px; margin-top:10px;">
+          <button class="add-btn" style="flex:1" onclick="checkout()">Checkout</button>
+          <button class="nav-btn" style="flex:1" onclick="clearCart()">Clear</button>
+        </div>
+      </div>
+
+      <!-- Help / Info -->
+      <div class="widget small">
+        <div style="font-weight:700;margin-bottom:6px">App Info</div>
+        This is a front-end demo. Google Sign-In is client-only using Google Identity Services. To enable sign-in, create a client ID as explained in the comments inside the page.
+      </div>
+    </aside>
+
+  </main>
+
   <footer>
-    <p>&copy; 2025 Foodify. Inspired by Swiggy & Zomato</p>
+    Built with ❤️ — Foodie Demo. Data and images for demo purposes only.
   </footer>
+
+  <!-- ===========================
+       SCRIPTS
+       =========================== -->
   <script>
-    const restaurants=[
-      {id:1,name:"Spice Villa",cuisine:"Indian",rating:4.5,image:"https://source.unsplash.com/400x300/?indianfood",menu:[{item:"Butter Chicken",price:250},{item:"Paneer Tikka",price:180}]},
-      {id:2,name:"Pasta Palace",cuisine:"Italian",rating:4.3,image:"https://source.unsplash.com/400x300/?pasta",menu:[{item:"Margherita Pizza",price:350},{item:"Spaghetti Carbonara",price:300}]},
-      {id:3,name:"Sushi World",cuisine:"Japanese",rating:4.7,image:"https://source.unsplash.com/400x300/?sushi",menu:[{item:"California Roll",price:400},{item:"Salmon Nigiri",price:450}]},
-      {id:4,name:"Burger Hub",cuisine:"American",rating:4.2,image:"https://source.unsplash.com/400x300/?burger",menu:[{item:"Cheeseburger",price:150},{item:"Fries",price:80}]},
-      {id:5,name:"Healthy Bowl",cuisine:"Salads",rating:4.6,image:"https://source.unsplash.com/400x300/?salad",menu:[{item:"Quinoa Bowl",price:200},{item:"Greek Salad",price:180}]}
+    /* ---------------------------
+       IMPORTANT: Google setup
+       - Create OAuth 2.0 Client ID (Web application) in Google Cloud Console:
+         https://console.cloud.google.com/apis/credentials
+       - Add your app origin to "Authorized JavaScript origins" (e.g., http://localhost:5500)
+       - Copy the Client ID and replace the string below.
+       --------------------------- */
+    const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE";
+
+    /* ---------------------------
+       Demo product data (static)
+       - Each item: id,name,price,category,veg(boolean),image
+       --------------------------- */
+    const PRODUCTS = [
+      { id: 1, name: "Classic Burger", price: 149, category:"fastfood", veg:false, image:"https://images.unsplash.com/photo-1551218808-94e220e084d2?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=2c6a4f6b9a2fbd5c022bff7b7f46d257" },
+      { id: 2, name: "Margherita Pizza", price: 299, category:"italian", veg:true, image:"https://images.unsplash.com/photo-1548365328-8b8e9d0be1ff?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=b2b7edb2d9e3b8b4b3f21dc7b2d8b1bc" },
+      { id: 3, name: "Paneer Biryani", price: 229, category:"biryani", veg:true, image:"https://images.unsplash.com/photo-1604908177073-9f9f1ef2f2a1?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=d18e8b9fcd0deadface8b8e9f3c2b7c1" },
+      { id: 4, name: "Chicken Biryani", price: 269, category:"biryani", veg:false, image:"https://images.unsplash.com/photo-1604908177115-0916ed4f3b2a?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=ab3b8c7f9b6c4c123d3a2e1f4a7c8b2d" },
+      { id: 5, name: "Veg Supreme Pasta", price: 179, category:"italian", veg:true, image:"https://images.unsplash.com/photo-1525755662778-989d0524087e?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=500a0f7c9ee8f2a5b7d8c8c1b6b9d7a3" },
+      { id: 6, name: "Chocolate Sundae", price: 99, category:"dessert", veg:true, image:"https://images.unsplash.com/photo-1606756792244-9aeb10b5b3a7?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=9c9bb54c8a2b5c3d3a7e8f7c6b5d3e1a" },
+      { id: 7, name: "Grilled Sandwich", price: 129, category:"snack", veg:false, image:"https://images.unsplash.com/photo-1550304943-6b6f6e4f2f93?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=b6f0c7f9a4e1d3c2b8c7e6d5a4f3c2b1" },
+      { id: 8, name: "Masala Dosa", price: 89, category:"south", veg:true, image:"https://images.unsplash.com/photo-1606851091237-6efc0198c6f5?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=2d5c4f1a9b6c7d8e9f0a1b2c3d4e5f6a" },
+      { id: 9, name: "Sizzling Brownie", price: 149, category:"dessert", veg:true, image:"https://images.unsplash.com/photo-1560185127-6f1b1e9f1b5d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=7c8a9b1d2f3e4d5c6b7a8c9d0e1f2a3b" },
+      { id: 10, name: "Veggie Salad Bowl", price: 119, category:"healthy", veg:true, image:"https://images.unsplash.com/photo-1551183053-bf91a1d81141?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=c1b2a3d4e5f6a7b8c9d0e1f2a3b4c5d6" }
     ];
-    let cart=[];
-    function renderRestaurants(){
-      const list=document.getElementById("restaurant-list");
-      list.innerHTML="";
-      restaurants.forEach(r=>{
-        const div=document.createElement("div");
-        div.className="restaurant";
-        div.innerHTML=`<img src="${r.image}" alt="${r.name}"><div class="info"><h3>${r.name}</h3><p>${r.cuisine} • ⭐ ${r.rating}</p></div>`;
-        div.onclick=()=>openRestaurant(r);
-        list.appendChild(div);
-      });
-    }
-    function searchRestaurants(){
-      const query=document.getElementById("search").value.toLowerCase();
-      const filtered=restaurants.filter(r=>r.name.toLowerCase().includes(query)||r.cuisine.toLowerCase().includes(query));
-      const list=document.getElementById("restaurant-list");
-      list.innerHTML="";
-      filtered.forEach(r=>{
-        const div=document.createElement("div");
-        div.className="restaurant";
-        div.innerHTML=`<img src="${r.image}" alt="${r.name}"><div class="info"><h3>${r.name}</h3><p>${r.cuisine} • ⭐ ${r.rating}</p></div>`;
-        div.onclick=()=>openRestaurant(r);
-        list.appendChild(div);
-      });
-    }
-    function openRestaurant(r){
-      document.getElementById("modal-title").textContent=r.name;
-      const menuList=document.getElementById("menu-list");
-      menuList.innerHTML="";
-      r.menu.forEach(m=>{
-        const div=document.createElement("div");
-        div.className="menu-item";
-        div.innerHTML=`<span>${m.item} - ₹${m.price}</span><button class='btn' onclick='addToCart("${m.item}",${m.price});event.stopPropagation();'>Add</button>`;
-        menuList.appendChild(div);
-      });
-      document.getElementById("restaurant-modal").classList.add("active");
-    }
-    function closeModal(){document.getElementById("restaurant-modal").classList.remove("active");}
-    function addToCart(item,price){
-      const found=cart.find(c=>c.item===item);
-      if(found){found.qty+=1}else{cart.push({item,price,qty:1})}
+
+    // state
+    let CART = JSON.parse(localStorage.getItem("fd_cart") || "[]");
+    let PROFILE = JSON.parse(localStorage.getItem("fd_profile") || "null");
+
+    /* ===========================
+       Utility functions
+       =========================== */
+    function currency(n){ return "₹" + Number(n).toFixed(0); }
+    function saveState(){
+      localStorage.setItem("fd_cart", JSON.stringify(CART));
+      localStorage.setItem("fd_profile", JSON.stringify(PROFILE));
       renderCart();
+      renderProfile();
     }
-    function renderCart(){
-      const container=document.getElementById("cart-items");
-      container.innerHTML="";
-      cart.forEach((c,i)=>{
-        const div=document.createElement("div");
-        div.className="cart-item";
-        div.innerHTML=`<span>${c.item} (x${c.qty})</span><span>₹${c.price*c.qty}</span>`;
-        container.appendChild(div);
+
+    /* ===========================
+       Render products
+       =========================== */
+    function renderProducts(){
+      const q = (document.getElementById("searchInput").value || "").toLowerCase().trim();
+      const cat = document.getElementById("categoryFilter").value;
+      const grid = document.getElementById("productGrid");
+      grid.innerHTML = "";
+
+      const filtered = PRODUCTS.filter(p=>{
+        if(cat !== "all"){
+          if(cat === "veg" && !p.veg) return false;
+          if(cat === "nonveg" && p.veg) return false;
+          if(cat !== "veg" && cat !== "nonveg" && p.category !== cat) return false;
+        }
+        if(!q) return true;
+        return (p.name + " " + p.category).toLowerCase().includes(q);
+      });
+
+      if(filtered.length === 0){
+        grid.innerHTML = `<div style="grid-column:1/-1; padding:30px; text-align:center; color:var(--muted)">No results — try a different search</div>`;
+        return;
+      }
+
+      filtered.forEach(p=>{
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <div class="media" style="background-image: url('${p.image}');"></div>
+          <div class="body">
+            <div style="display:flex; justify-content:space-between; align-items:center">
+              <div>
+                <h3>${p.name}</h3>
+                <div class="small">${p.category} • ${p.veg ? 'Veg' : 'Non-Veg'}</div>
+              </div>
+              <div>
+                <div class="price">${currency(p.price)}</div>
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+              <button class="add-btn" onclick="addToCart(${p.id})">Add to cart</button>
+              <button class="nav-btn" onclick="viewDetail(${p.id})">View</button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
       });
     }
-    function openCart(){document.getElementById("cart-panel").classList.add("active");}
-    function openProfile(){document.getElementById("profile-panel").classList.add("active");loadProfile();}
-    function openLogin(){document.getElementById("login-panel").classList.add("active");}
-    function checkout(){alert("Order placed successfully! (Demo)");cart=[];renderCart();}
-    function saveProfile(){localStorage.setItem("name",document.getElementById("profile-name").value);localStorage.setItem("city",document.getElementById("profile-city").value);alert("Profile Saved!");}
-    function loadProfile(){document.getElementById("profile-name").value=localStorage.getItem("name")||"";document.getElementById("profile-city").value=localStorage.getItem("city")||"";}
-    function login(){const u=document.getElementById("login-username").value;localStorage.setItem("user",u);alert("Welcome, "+u+"!");document.getElementById("login-panel").classList.remove("active");}
-    function showHome(){closeModal();document.getElementById("cart-panel").classList.remove("active");document.getElementById("profile-panel").classList.remove("active");document.getElementById("login-panel").classList.remove("active");}
-    renderRestaurants();
+
+    /* recommended grid (pick 4 random) */
+    function renderRecommended(){
+      const grid = document.getElementById("recommendedGrid"); grid.innerHTML="";
+      const shuffled = [...PRODUCTS].sort(()=>0.5-Math.random()).slice(0,4);
+      shuffled.forEach(p=>{
+        const c=document.createElement("div"); c.className="card";
+        c.innerHTML = `
+          <div class="media" style="background-image:url('${p.image}')"></div>
+          <div class="body">
+            <h3>${p.name}</h3>
+            <div class="small">${currency(p.price)} • ${p.veg ? 'Veg':'Non-Veg'}</div>
+            <div style="margin-top:8px; display:flex; gap:8px;">
+              <button class="add-btn" onclick="addToCart(${p.id})">Add</button>
+              <button class="nav-btn" onclick="viewDetail(${p.id})">Details</button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(c);
+      });
+    }
+
+    /* ===========================
+       Cart operations
+       =========================== */
+    function addToCart(id){
+      const product = PRODUCTS.find(p=>p.id===id);
+      if(!product) return;
+      const existing = CART.find(it=>it.id===id);
+      if(existing) existing.qty += 1;
+      else CART.push({ id: product.id, name: product.name, price: product.price, image: product.image, qty:1 });
+      saveState();
+      showToast(`${product.name} added to cart`);
+    }
+
+    function renderCart(){
+      const list = document.getElementById("cartList"); list.innerHTML="";
+      let total = 0, items = 0;
+      CART.forEach((it, idx)=>{
+        total += it.price * it.qty; items += it.qty;
+        const row = document.createElement("div"); row.className="cart-item";
+        row.innerHTML = `
+          <img src="${it.image}" alt="${it.name}">
+          <div style="flex:1;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div style="font-weight:700">${it.name}</div>
+              <div style="font-weight:700">${currency(it.price * it.qty)}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+              <button class="qty-btn" onclick="updateQty(${idx}, ${Math.max(0, it.qty-1)})">-</button>
+              <div style="min-width:28px;text-align:center">${it.qty}</div>
+              <button class="qty-btn" onclick="updateQty(${idx}, ${it.qty+1})">+</button>
+              <button class="nav-btn" style="margin-left:auto" onclick="removeCartItem(${idx})">Remove</button>
+            </div>
+          </div>
+        `;
+        list.appendChild(row);
+      });
+
+      document.getElementById("cartTotal").innerText = currency(total);
+      document.getElementById("cartSummaryText").innerText = `${items} item${items!==1?'s':''}`;
+      document.getElementById("cartCount").innerText = items;
+      // persist cart
+      localStorage.setItem("fd_cart", JSON.stringify(CART));
+    }
+
+    function updateQty(idx, newQty){
+      if(newQty <= 0) CART.splice(idx,1);
+      else CART[idx].qty = newQty;
+      saveState();
+    }
+    function removeCartItem(idx){
+      CART.splice(idx,1);
+      saveState();
+      showToast("Removed from cart");
+    }
+    function clearCart(){
+      if(!confirm("Clear cart?")) return;
+      CART = [];
+      saveState();
+      showToast("Cart cleared");
+    }
+
+    /* checkout (demo) */
+    function checkout(){
+      if(!PROFILE || !PROFILE.email){
+        if(!confirm("You must sign in to checkout. Sign in now?")) return;
+        // open sign-in
+        document.getElementById("gSignInWrapper").querySelector("button")?.click();
+        return;
+      }
+      if(CART.length === 0){ alert("Cart is empty"); return; }
+      // demo checkout — show summary then clear cart
+      const items = CART.map(it=>`${it.qty} x ${it.name}`).join("\n");
+      alert(`Order placed!\n\n${items}\n\nDeliver to: ${PROFILE.address || 'No address set'}\n\n(Checkout is demo-only)`);
+      CART = [];
+      saveState();
+    }
+
+    /* ===========================
+       Profile handling
+       =========================== */
+    function renderProfile(){
+      const name = PROFILE?.name || "Guest";
+      const email = PROFILE?.email || "Not signed in";
+      const photo = PROFILE?.picture || "https://source.unsplash.com/80x80/?person";
+      document.getElementById("pfName").innerText = name;
+      document.getElementById("pfEmail").innerText = email;
+      document.getElementById("pfPhoto").src = photo;
+
+      // update mini profile in header
+      const mini = document.getElementById("profileMini");
+      mini.innerHTML = "";
+      if(PROFILE && PROFILE.email){
+        const img = document.createElement("img"); img.src = photo; img.style.width="36px"; img.style.height="36px"; img.style.borderRadius="999px";
+        mini.appendChild(img);
+      }
+      // address
+      document.getElementById("addressInput").value = PROFILE?.address || "";
+    }
+
+    function saveAddress(){
+      const val = document.getElementById("addressInput").value.trim();
+      if(!PROFILE) PROFILE = {};
+      PROFILE.address = val;
+      localStorage.setItem("fd_profile", JSON.stringify(PROFILE));
+      showToast("Address saved");
+      renderProfile();
+    }
+    function quickFillAddress(){
+      document.getElementById("addressInput").value = "221B, Foodie Street, Demo City";
+      saveAddress();
+    }
+
+    /* ===========================
+       Small helpers
+       =========================== */
+    function viewDetail(id){
+      const p = PRODUCTS.find(x=>x.id===id);
+      alert(`${p.name}\n\nPrice: ${currency(p.price)}\nCategory: ${p.category}\n${p.veg ? 'Veg' : 'Non-Veg'}\n\n(Details view is demo-only)`);
+    }
+
+    function goHome(){ window.scrollTo({top:0,behavior:'smooth'}); }
+    function goTo(selector){ const el = document.querySelector(selector); if(el) el.scrollIntoView({behavior:'smooth'}); }
+
+    function showToast(txt){
+      // simple temporary toast
+      const t = document.createElement("div");
+      t.style.position="fixed"; t.style.right="18px"; t.style.bottom="18px";
+      t.style.background="linear-gradient(90deg,var(--primary),var(--accent))"; t.style.color="#fff";
+      t.style.padding="10px 14px"; t.style.borderRadius="10px"; t.style.boxShadow= "0 10px 30px rgba(0,0,0,0.12)";
+      t.style.fontWeight=700; t.style.zIndex=9999; t.innerText = txt;
+      document.body.appendChild(t);
+      setTimeout(()=>{ t.style.transition="all .25s ease"; t.style.opacity=0; t.style.transform="translateY(12px)"; },1500);
+      setTimeout(()=>t.remove(),2400);
+    }
+
+    /* ===========================
+       Google Identity Services
+       - Uses Google Identity Services (one-tap / button)
+       - This demo decodes the JWT credential payload client-side
+       - NOTE: replace GOOGLE_CLIENT_ID with your client ID
+       =========================== */
+    function initializeGoogleSignIn(){
+      if(GOOGLE_CLIENT_ID === "YOUR_GOOGLE_CLIENT_ID_HERE"){
+        // show small placeholder button telling user to set up client id
+        const wrapper = document.getElementById("gSignInWrapper");
+        wrapper.innerHTML = `<button class="add-btn" onclick="alert('Set GOOGLE_CLIENT_ID in the HTML and add origin to Google Console (see comments).')">Enable Google Sign-In</button>`;
+        return;
+      }
+
+      // load the Google Identity Services script dynamically
+      const s = document.createElement('script');
+      s.src = "https://accounts.google.com/gsi/client";
+      s.onload = () => {
+        /* render the button in header */
+        google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: handleCredentialResponse,
+          ux_mode: 'popup'
+        });
+        // render compact sign-in button
+        google.accounts.id.renderButton(
+          document.getElementById("gSignInWrapper"),
+          { theme: "outline", size: "medium", shape:"pill", width:200 }
+        );
+        // optional: prompt (disabled for UX demo)
+        // google.accounts.id.prompt();
+      };
+      document.head.appendChild(s);
+    }
+
+    function handleCredentialResponse(response){
+      // response.credential is a JWT. Decode payload:
+      try{
+        const payload = JSON.parse(atob(response.credential.split('.')[1]));
+        PROFILE = {
+          id: payload.sub,
+          name: payload.name,
+          email: payload.email,
+          picture: payload.picture,
+          iss: payload.iss,
+          iat: payload.iat
+        };
+        localStorage.setItem("fd_profile", JSON.stringify(PROFILE));
+        // toggle UI
+        document.getElementById("signedOutActions").style.display="none";
+        document.getElementById("signedInActions").style.display="flex";
+        document.getElementById("gSignInWrapper").style.display="none";
+        renderProfile();
+        showToast(`Welcome, ${PROFILE.name.split(' ')[0]}!`);
+      }catch(err){
+        console.error("Failed to parse credential", err);
+      }
+    }
+
+    function signOut(){
+      // Google Identity provides no client-side revoke for the button itself; we can clear local data
+      PROFILE = null;
+      localStorage.removeItem("fd_profile");
+      // show signed out UI
+      document.getElementById("signedOutActions").style.display="flex";
+      document.getElementById("signedInActions").style.display="none";
+      document.getElementById("gSignInWrapper").style.display="block";
+      renderProfile();
+      showToast("Signed out");
+    }
+
+    /* ===========================
+       Init app
+       =========================== */
+    function init(){
+      renderProducts();
+      renderRecommended();
+      renderCart();
+      // render profile or fallback UI
+      if(PROFILE && PROFILE.email){
+        document.getElementById("signedOutActions").style.display="none";
+        document.getElementById("signedInActions").style.display="flex";
+      } else {
+        document.getElementById("signedOutActions").style.display="flex";
+        document.getElementById("signedInActions").style.display="none";
+      }
+      renderProfile();
+      initializeGoogleSignIn();
+    }
+
+    // initialize on load
+    window.addEventListener("DOMContentLoaded", init);
   </script>
+
+  <!-- ===========================
+       USAGE NOTES
+       ===========================
+       1) Replace GOOGLE_CLIENT_ID variable at top with your "Web application" Client ID.
+       2) Add your app origin (http://localhost:5500 or https://yourdomain.com) to "Authorized JavaScript origins".
+       3) Google Sign-In runs client-side and returns a credential JWT; the demo decodes it locally.
+       4) For production, verify the token server-side and use secure sessions (this demo is front-end only).
+       =========================== -->
 </body>
 </html>
